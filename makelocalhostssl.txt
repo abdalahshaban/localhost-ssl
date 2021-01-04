@@ -1,0 +1,35 @@
+
+https.createServer({
+  key: fs.readFileSync(NODE_SSL_KEY),
+  cert: fs.readFileSync(NODE_SSL_CERT),
+  ca: fs.readFileSync(NODE_SSL_CA),
+}, app).listen(PORT, () => {});
+
+
+localhost.cnf
+
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+[req_distinguished_name]
+C = UK
+ST = State
+L = Location
+O = Organization Name
+OU = Organizational Unit 
+CN = www.localhost.com
+[v3_req]
+keyUsage = critical, digitalSignature, keyAgreement
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = www.localhost.com
+DNS.2 = localhost.com
+DNS.3 = localhost
+
+openssl genrsa -out localhost.key 2048
+openssl req -new -x509 -key localhost.key -out localhost.crt -config localhost.cnf
+openssl req -new -out localhost.csr -config localhost.cnf
+openssl x509 -req -in localhost.csr -CA localhost.crt -CAkey localhost.key -CAcreateserial -out ca.crt
+
